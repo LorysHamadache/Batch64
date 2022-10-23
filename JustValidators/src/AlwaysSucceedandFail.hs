@@ -19,6 +19,8 @@ import           Ledger              hiding (singleton)
 import           Ledger.Constraints  as Constraints
 import qualified Ledger.Scripts      as Scripts               -- Low Level Typed Validator 
 import           Ledger.Ada          as Ada
+--Plutus Off-Chain related - Contract Monad and Playground
+import           Plutus.Contract
 import           Playground.Contract (printJson, printSchemas, ensureKnownCurrencies, stage)
 import           Playground.TH       (mkKnownCurrencies, mkSchemaDefinitions)
 import           Playground.Types    (KnownCurrency (..))
@@ -40,9 +42,11 @@ alwaysSucceeds _ _ _ = ()
 alwaysFails :: BuiltinData -> BuiltinData -> BuiltinData -> ()   
 alwaysFails _ _ _ = error () --you can also change this to traceError "BURNT!"
 
-
 validator :: Validator
 validator = mkValidatorScript $$(PlutusTx.compile [|| alwaysSucceeds ||])
+
+valHash :: Ledger.ValidatorHash
+valHash = Scripts.validatorHash validator  -- The hash of the validators
 
 scrAddress :: Address
 scrAddress = scriptAddress validator 
